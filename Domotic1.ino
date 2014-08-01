@@ -33,21 +33,71 @@ indicación de estado del spark, historial de enlace a la nube
 encender o apagar D7 o D6, indicador de tarea realizada …. Ejemplo cambio de color de algo….
 
 */
+// includes
+#include <Adafruit_NeoPixel.h>
+#include <Metro.h>
+
+// defines de hardware
 #define rele1 7
 #define rele2 6
 #define puls1 4
 #define puls2 3
-//#define tmp A7
+#define tmp A7
+#define neopixel 5
+
+// constantes
+#define cTimerTmp 6000 // 60 seg * 100 ms
+#define cTempMax 2048 // corregir
+#define cMsRebote 5 // constante de rebote
+// variables
+boolean releHabilitado = true; // usado para la desabilitacion remota
+boolean apagadoTmp = false; // usado para apagado por sobretemperatura
+int timerTmp=0;
+boolean estadoRele1 = LOW;
+boolean estadoRele2 = LOW;
+boolean estadoPuls1 = false;
+boolean estadoPuls2 = false;
+
+// objetos
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, neopixel, NEO_GRB + NEO_KHZ800);
+Metro timer = Metro(100); 
 
 void setup() {
-  // put your setup code here, to run once:
+  // hardware
   pinMode(rele1, OUTPUT);
   pinMode(rele2, OUTPUT);
+  pinMode(neopixel, OUTPUT);
+  pinMode(puls1, INPUT);
+  pinMode(puls2, INPUT);
+  pinMode(tmp, INPUT);
   
+  // neopixel
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
+  strip.Color(255, 0, 0);
   
+  // rutinas SPARK
+  
+  // variables SPARK
+  
+  // estado por defecto de los reles
+  conmutaRele(rele1,estadoRele1);
+  conmutaRele(rele2,estadoRele2);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  
+  // acciones que se revisan cada 100ms
+   if (timer.check() == 1){
+     // switchs
+     leeSwitch(puls1,rele1, &estadoPuls1);
+     leeSwitch(puls2,rele2, &estadoPuls2);
+     
+     // temperatura, según su contador
+     if (timerTmp++>cTimerTmp){
+       timerTmp=0;
+       revisaTemperatura(tmp);
+     }
+   }
 }
+
