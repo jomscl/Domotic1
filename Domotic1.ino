@@ -90,8 +90,8 @@ void loop() {
   // acciones que se revisan cada 100ms
    if (timer.check() == 1){
      // switchs
-     leeSwitch(puls1,rele1, &estadoPuls1);
-     leeSwitch(puls2,rele2, &estadoPuls2);
+     leeSwitch(puls1,rele1,estadoPuls1);
+     leeSwitch(puls2,rele2,estadoPuls2);
      
      // temperatura, según su contador
      if (timerTmp++>cTimerTmp){

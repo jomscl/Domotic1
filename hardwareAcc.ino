@@ -6,13 +6,14 @@ boolean leeRele(int pin){
   return digitalRead(pin); 
 }
 
-void leeSwitch(int sw, int rele int pulsador){
-  if (releHabilitado && !apagadoTmp && !pulsador){
+void leeSwitch(int sw, int rele, boolean &idPulsador){
+  if (releHabilitado && !apagadoTmp && !idPulsador){
     if (digitalRead(sw)==HIGH){
       // rebote
       delay(cMsRebote);
       if (digitalRead(sw)==HIGH){
         // switch apretado
+        idPulsador=true;
         
       }
     }  
