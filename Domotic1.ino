@@ -49,14 +49,33 @@ encender o apagar D7 o D6, indicador de tarea realizada …. Ejemplo cambio de c
 #define cTimerTmp 6000 // 60 seg * 100 ms
 #define cTempMax 2048 // corregir
 #define cMsRebote 5 // constante de rebote
+#define nreles 1 // n+1
+#define nswitch 1
+
+// estructuras
+struct stRele
+{
+	byte pin;
+	boolean estado;
+	boolean estadoDefecto;
+};
+
+struct stSwt
+{
+	byte pin;
+	boolean estadoPulsador;
+};
+
 // variables
 boolean releHabilitado = true; // usado para la desabilitacion remota
 boolean apagadoTmp = false; // usado para apagado por sobretemperatura
 int timerTmp=0;
-boolean estadoRele1 = LOW;
-boolean estadoRele2 = LOW;
-boolean estadoPuls1 = false;
-boolean estadoPuls2 = false;
+//boolean estadoRele1 = LOW;
+//boolean estadoRele2 = LOW;
+//boolean estadoPuls1 = false;
+//boolean estadoPuls2 = false;
+stRele reles[nreles];
+stSwt swt[nreles];
 
 // objetos
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, neopixel, NEO_GRB + NEO_KHZ800);
@@ -64,25 +83,23 @@ Metro timer = Metro(100);
 
 void setup() {
   // hardware
-  pinMode(rele1, OUTPUT);
-  pinMode(rele2, OUTPUT);
-  pinMode(neopixel, OUTPUT);
-  pinMode(puls1, INPUT);
-  pinMode(puls2, INPUT);
-  pinMode(tmp, INPUT);
+	creaRele(0,rele1,LOW);
+	creaRele(1,rele2,LOW);
+	pinMode(neopixel, OUTPUT);
+	pinMode(puls1, INPUT);
+	pinMode(puls2, INPUT);
+	pinMode(tmp, INPUT);
   
-  // neopixel
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
-  strip.Color(255, 0, 0);
+	// neopixel
+	strip.begin();
+	strip.show(); // Initialize all pixels to 'off'
+	strip.Color(255, 0, 0);
   
-  // rutinas SPARK
+	// rutinas SPARK
   
-  // variables SPARK
+	// variables SPARK
   
-  // estado por defecto de los reles
-  conmutaRele(rele1,estadoRele1);
-  conmutaRele(rele2,estadoRele2);
+
 }
 
 void loop() {
@@ -90,8 +107,9 @@ void loop() {
   // acciones que se revisan cada 100ms
    if (timer.check() == 1){
      // switchs
-     leeSwitch(puls1,rele1,estadoPuls1);
-     leeSwitch(puls2,rele2,estadoPuls2);
+     for (int i=0;i<=nreles;i++){
+		 leeSwitch(i);
+	 }
      
      // temperatura, según su contador
      if (timerTmp++>cTimerTmp){
@@ -101,3 +119,16 @@ void loop() {
    }
 }
 
+void creaRele(int id, byte pin, byte estadoDefault){
+	// definicion del objeto
+	reles[id].pin=pin;
+	reles[id].estado=estadoDefault;
+	reles[id].estadoDefecto=estadoDefault;
+	pinMode(reles[id].pin, OUTPUT);
+	conmutaRele(id,reles[id].estado);
+}
+
+void creaSwt(int id, byte pin){
+	swt[id].pin=pin;
+	swt[id].estadoPulsador=false;
+}

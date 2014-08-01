@@ -1,12 +1,12 @@
-void conmutaRele(int pin, boolean estado){
-  digitalWrite(pin,estado);
+void conmutaRele(int id, boolean estado){
+  digitalWrite(reles[id].pin,estado);
 }
 
-boolean leeRele(int pin){
-  return digitalRead(pin); 
+boolean leeRele(int id){
+  return digitalRead(reles[id].pin); 
 }
 
-void leeSwitch(int sw, int rele, boolean &idPulsador){
+void leeSwitch(int i){
   if (releHabilitado && !apagadoTmp && !idPulsador){
     if (digitalRead(sw)==HIGH){
       // rebote
@@ -14,7 +14,8 @@ void leeSwitch(int sw, int rele, boolean &idPulsador){
       if (digitalRead(sw)==HIGH){
         // switch apretado
         idPulsador=true;
-        
+        reles[i].estado=!leeRele(i);
+		conmutaRele(i,reles[i].estado);
       }
     }  
   }
@@ -22,13 +23,14 @@ void leeSwitch(int sw, int rele, boolean &idPulsador){
 
 void revisaTemperatura(int pin){
   int tempActual=analogRead(pin);
+  int i;
+
   if (tempActual>=cTempMax && apagadoTmp==false){
-    // respaldo el estado de los reles
-    estadoRele1=leeRele(rele1);
-    estadoRele2=leeRele(rele2);
+
     // apagar los reles
-    conmutaRele(rele1,LOW);
-    conmutaRele(rele2,LOW);
+	for (int i=0;i<=nreles;i++){
+		conmutaRele(i,LOW);
+	}
     // alertar por wifi
     
     // Cambio estado LED
@@ -38,8 +40,9 @@ void revisaTemperatura(int pin){
   
   if (tempActual<cTempMax && apagadoTmp==true){
     // dejar como estaban antes
-    conmutaRele(rele1,estadoRele1);
-    conmutaRele(rele2,estadoRele2);
+	for (int i=0;i<=nreles;i++){
+		conmutaRele(i,reles[i].estado);
+	}
  
      // alertar por wifi
     
