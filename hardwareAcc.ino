@@ -6,19 +6,26 @@ boolean leeRele(int id){
   return digitalRead(reles[id].pin); 
 }
 
-void leeSwitch(int i){
-  if (releHabilitado && !apagadoTmp && !idPulsador){
-    if (digitalRead(sw)==HIGH){
-      // rebote
-      delay(cMsRebote);
-      if (digitalRead(sw)==HIGH){
-        // switch apretado
-        idPulsador=true;
-        reles[i].estado=!leeRele(i);
-		conmutaRele(i,reles[i].estado);
-      }
-    }  
-  }
+void leeSwitch(int id){
+	if (releHabilitado && !apagadoTmp){// solo entra si el sistema esta activo
+		if (!swt[id].estadoPulsador){ // solo entra si anteriormente el swt esta apagado
+			if (leeSR(swt[id].pin)==HIGH){
+				// switch apretado
+				swt[id].estadoPulsador=true;
+				reles[id].estado=!leeRele(id);
+				conmutaRele(id,reles[id].estado);
+				// avisar al cloud
+			}
+		}else{ // entra si anteriormente el boton estaba encendido
+			if (leeSR(swt[id].pin)==LOW){
+				// switch suelto
+				swt[id].estadoPulsador=false;
+				reles[id].estado=!leeRele(id);
+				conmutaRele(id,reles[id].estado);
+				// avisar al cloud
+			}
+		}// fin if según estado anterior del sw
+	} // fin if sistema activo
 }
 
 void revisaTemperatura(int pin){
@@ -50,4 +57,21 @@ void revisaTemperatura(int pin){
     
     apagadoTmp=false;  
   }
+}
+
+bool leeSR(int pin){
+	// funcion que lee entradas sin rebote
+	boolean estable=false;
+	boolean ultimoEstado=digitalRead(pin);
+	boolean tmp;
+	while (!estable){
+		delay(cMsRebote);
+		tmp=digitalRead(pin);
+		if (tmp==ultimoEstado){
+			estable=true;
+		}else{
+			ultimoEstado=tmp;
+		}
+	}
+	return ultimoEstado;
 }

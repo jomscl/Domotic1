@@ -36,6 +36,7 @@ encender o apagar D7 o D6, indicador de tarea realizada …. Ejemplo cambio de c
 // includes
 #include <Adafruit_NeoPixel.h>
 #include <Metro.h>
+#include <debug.h>
 
 // defines de hardware
 #define rele1 7
@@ -70,10 +71,6 @@ struct stSwt
 boolean releHabilitado = true; // usado para la desabilitacion remota
 boolean apagadoTmp = false; // usado para apagado por sobretemperatura
 int timerTmp=0;
-//boolean estadoRele1 = LOW;
-//boolean estadoRele2 = LOW;
-//boolean estadoPuls1 = false;
-//boolean estadoPuls2 = false;
 stRele reles[nreles];
 stSwt swt[nreles];
 
@@ -83,11 +80,13 @@ Metro timer = Metro(100);
 
 void setup() {
   // hardware
+	Serial.begin(9600);
+	DEBUGLN("Core online");
 	creaRele(0,rele1,LOW);
 	creaRele(1,rele2,LOW);
 	pinMode(neopixel, OUTPUT);
-	pinMode(puls1, INPUT);
-	pinMode(puls2, INPUT);
+	creaSwt(0,puls1);
+	creaSwt(1,puls2);
 	pinMode(tmp, INPUT);
   
 	// neopixel
@@ -119,11 +118,11 @@ void loop() {
    }
 }
 
-void creaRele(int id, byte pin, byte estadoDefault){
+void creaRele(int id, byte pin, byte estadoDefecto){
 	// definicion del objeto
 	reles[id].pin=pin;
-	reles[id].estado=estadoDefault;
-	reles[id].estadoDefecto=estadoDefault;
+	reles[id].estado=estadoDefecto;
+	reles[id].estadoDefecto=estadoDefecto;
 	pinMode(reles[id].pin, OUTPUT);
 	conmutaRele(id,reles[id].estado);
 }
@@ -131,4 +130,5 @@ void creaRele(int id, byte pin, byte estadoDefault){
 void creaSwt(int id, byte pin){
 	swt[id].pin=pin;
 	swt[id].estadoPulsador=false;
+	pinMode(swt[id].pin,INPUT);
 }

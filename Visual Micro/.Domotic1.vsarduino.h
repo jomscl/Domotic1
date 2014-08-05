@@ -41,12 +41,13 @@ extern "C" void __cxa_pure_virtual() {;}
 
 //
 //
-void creaRele(int id, byte pin, byte estadoDefault);
+void creaRele(int id, byte pin, byte estadoDefecto);
 void creaSwt(int id, byte pin);
 void conmutaRele(int id, boolean estado);
 boolean leeRele(int id);
-void leeSwitch(int i);
+void leeSwitch(int id);
 void revisaTemperatura(int pin);
+bool leeSR(int pin);
 
 #include "C:\Program Files\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"
 #include "C:\Program Files\Arduino\hardware\arduino\avr\variants\standard\pins_arduino.h" 
